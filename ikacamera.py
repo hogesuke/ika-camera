@@ -48,19 +48,23 @@ def detect(camera, cascade_win, cascade_lose):
             for rect in win_rects:
                 cv2.rectangle(frame, tuple(rect[0:2]), tuple(rect[0:2]+rect[2:4]), (255, 255, 255), thickness=2)
 
-            if win_frame_count > 5:
+            if win_frame_count > 3:
                 win_frame_count = 0
-                capture(camera, dist)
+                capture(camera, dist, 'win')
+        else:
+            win_frame_count = 0
 
         if len(lose_rects) > 0:
             lose_frame_count += 1
 
             for rect in lose_rects:
-                cv2.rectangle(frame, tuple(rect[0:2]), tuple(rect[0:2]+rect[2:4]), (0, 0, 0), thickness=2)
+                cv2.rectangle(frame, tuple(rect[0:2]), tuple(rect[0:2]+rect[2:4]), (255, 0, 0), thickness=2)
 
-            if lose_frame_count > 5:
+            if lose_frame_count > 3:
                 lose_frame_count = 0
-                capture(camera, dist)
+                capture(camera, dist, 'lose')
+        else:
+            lose_frame_count = 0
 
         cv2.imshow(window_name, frame)
 
@@ -68,10 +72,10 @@ def detect(camera, cascade_win, cascade_lose):
         if key == 27:
             break
 
-def capture(camera, dist):
+def capture(camera, dist, result):
     now = datetime.now().strftime('%Y%m%d%H%M%S')
     camera.resolution = (640, 480)
-    camera.capture('{0}/ika_result{1}.jpg'.format(dist, now))
+    camera.capture('{0}/ika_result{1}_{2}.jpg'.format(dist, now, result))
     camera.resolution = (160, 120)
 
 def main():
