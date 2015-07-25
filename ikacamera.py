@@ -75,6 +75,10 @@ def capture(camera, dist):
     camera.resolution = (160, 120)
 
 def main():
+
+    if os.path.exists('result') is False:
+        os.mkdir('result')
+
     cascade_win = cv2.CascadeClassifier("./cascade/ika_result_win.xml")
     cascade_lose = cv2.CascadeClassifier("./cascade/ika_result_lose.xml")
 
