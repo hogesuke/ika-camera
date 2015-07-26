@@ -55,7 +55,7 @@ def detect(camera, cascade_win, cascade_lose):
 
             if win_frame_count > 3 and wait_time < datetime.now():
                 win_frame_count = 0
-                wait_time = wait_time + timedelta(seconds=10)
+                wait_time = datetime.now() + timedelta(seconds=10)
                 now = datetime.now()
                 path = capture(camera, dist, now.strftime('%Y%m%d%H%M%S'), 'win')
                 send(path, now.strftime('%Y-%m-%d %H:%M:%S'), 'win')
@@ -70,7 +70,7 @@ def detect(camera, cascade_win, cascade_lose):
 
             if lose_frame_count > 3 and wait_time < datetime.now():
                 lose_frame_count = 0
-                wait_time = wait_time + timedelta(seconds=10)
+                wait_time = datetime.now() + timedelta(seconds=10)
                 now = datetime.now()
                 path = capture(camera, dist, now.strftime('%Y%m%d%H%M%S'), 'lose')
                 send(path, now.strftime('%Y-%m-%d %H:%M:%S'), 'lose')
