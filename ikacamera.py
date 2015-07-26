@@ -34,6 +34,8 @@ def detect(camera, cascade_win, cascade_lose):
     win_frame_count = 0
     lose_frame_count = 0
 
+    wait_time = datetime.now()
+
     while True:
         camera.capture(stream, format="jpeg", use_video_port=True)
         frame = np.fromstring(stream.getvalue(), dtype=np.uint8)
@@ -44,8 +46,6 @@ def detect(camera, cascade_win, cascade_lose):
 
         win_rects = cascade_win.detectMultiScale(image_gray, scaleFactor=1.1, minNeighbors=1, minSize=(1, 1))
         lose_rects = cascade_lose.detectMultiScale(image_gray, scaleFactor=1.1, minNeighbors=1, minSize=(1, 1))
-
-        wait_time = datetime.now()
 
         if len(win_rects) > 0:
             win_frame_count += 1
