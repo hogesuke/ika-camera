@@ -58,12 +58,15 @@ def detect(camera, cascade_win, cascade_lose):
                 now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 path = capture(camera, dist, now)
                 send(path, 'win', now)
+                capture(camera, dist, 'win')
+        else:
+            win_frame_count = 0
 
         if len(lose_rects) > 0:
             lose_frame_count += 1
 
             for rect in lose_rects:
-                cv2.rectangle(frame, tuple(rect[0:2]), tuple(rect[0:2]+rect[2:4]), (0, 0, 0), thickness=2)
+                cv2.rectangle(frame, tuple(rect[0:2]), tuple(rect[0:2]+rect[2:4]), (255, 0, 0), thickness=2)
 
             if lose_frame_count > 3 and wait_time < datetime.now():
                 lose_frame_count = 0
@@ -78,8 +81,8 @@ def detect(camera, cascade_win, cascade_lose):
         if key == 27:
             break
 
-def capture(camera, dist, now):
-    path = '{0}/ika_result{1}.jpg'.format(dist, now)
+def capture(camera, dist, now, result):
+    path = '{0}/ika_result{1}_{2}.jpg'.format(dist, now, result)
     camera.resolution = (640, 480)
     camera.capture(path)
     camera.resolution = (160, 120)
