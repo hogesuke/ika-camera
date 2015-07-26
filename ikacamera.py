@@ -56,10 +56,9 @@ def detect(camera, cascade_win, cascade_lose):
             if win_frame_count > 3 and wait_time < datetime.now():
                 win_frame_count = 0
                 wait_time = wait_time + timedelta(seconds=10)
-                now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                path = capture(camera, dist, now)
-                send(path, 'win', now)
-                capture(camera, dist, 'win')
+                now = datetime.now()
+                path = capture(camera, dist, now.strftime('%Y%m%d%H%M%S'), 'win')
+                send(path, now.strftime('%Y-%m-%d %H:%M:%S'), 'win')
         else:
             win_frame_count = 0
 
@@ -73,8 +72,8 @@ def detect(camera, cascade_win, cascade_lose):
                 lose_frame_count = 0
                 wait_time = wait_time + timedelta(seconds=10)
                 now = datetime.now()
-                path = capture(camera, dist, now.strftime('%Y%m%d%H%M%S'))
-                send(path, 'win', now.strftime('%Y-%m-%d %H:%M:%S'))
+                path = capture(camera, dist, now.strftime('%Y%m%d%H%M%S'), 'lose')
+                send(path, now.strftime('%Y-%m-%d %H:%M:%S'), 'lose')
 
         cv2.imshow(window_name, frame)
 
@@ -89,7 +88,7 @@ def capture(camera, dist, now, result):
     camera.resolution = (160, 120)
     return path
 
-def send(path, result, now):
+def send(path, now, result):
     opener = urllib2.build_opener(MultipartPostHandler.MultipartPostHandler)
     params = {'result': result, 'datetime': now, 'file': open(path, 'rb')}
     opener.open('http://ikashot.net/upload', params)
