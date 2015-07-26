@@ -9,6 +9,7 @@ import os
 import urllib2
 import MultipartPostHandler
 from datetime import datetime
+from datetime import timedelta
 
 def setup():
     camera = picamera.PiCamera()
@@ -54,7 +55,7 @@ def detect(camera, cascade_win, cascade_lose):
 
             if win_frame_count > 3 and wait_time < datetime.now():
                 win_frame_count = 0
-                wait_time = wait_time + datetime.timedelta(seconds=10)
+                wait_time = wait_time + timedelta(seconds=10)
                 now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 path = capture(camera, dist, now)
                 send(path, 'win', now)
@@ -70,7 +71,7 @@ def detect(camera, cascade_win, cascade_lose):
 
             if lose_frame_count > 3 and wait_time < datetime.now():
                 lose_frame_count = 0
-                wait_time = wait_time + datetime.timedelta(seconds=10)
+                wait_time = wait_time + timedelta(seconds=10)
                 now = datetime.now()
                 path = capture(camera, dist, now.strftime('%Y%m%d%H%M%S'))
                 send(path, 'win', now.strftime('%Y-%m-%d %H:%M:%S'))
