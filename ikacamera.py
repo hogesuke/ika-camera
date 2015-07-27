@@ -108,9 +108,7 @@ def capture(camera, stream):
 
 def save(frame, dist, now, result):
     path = '{0}/ika_result{1}_{2}.jpg'.format(dist, now, result)
-    f = open(path, "w+b")
-    f.write(frame)
-    f.close()
+    cv2.imwrite(path, frame)
 
     return path
 
