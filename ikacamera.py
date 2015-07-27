@@ -59,7 +59,7 @@ def detect(camera, cascade_win, cascade_lose):
             for rect in win_rects:
                 cv2.rectangle(frame, tuple(rect[0:2]), tuple(rect[0:2]+rect[2:4]), (255, 255, 255), thickness=2)
 
-            if win_frame_count > 10 and wait_time < datetime.now():
+            if win_frame_count > 5 and wait_time < datetime.now():
                 win_frame_count = 0
                 now = datetime.now()
                 wait_time = now + timedelta(seconds=10)
@@ -79,7 +79,7 @@ def detect(camera, cascade_win, cascade_lose):
             for rect in lose_rects:
                 cv2.rectangle(frame, tuple(rect[0:2]), tuple(rect[0:2]+rect[2:4]), (255, 0, 0), thickness=2)
 
-            if lose_frame_count > 10 and wait_time < datetime.now():
+            if lose_frame_count > 5 and wait_time < datetime.now():
                 lose_frame_count = 0
                 now = datetime.now()
                 wait_time = now + timedelta(seconds=10)
