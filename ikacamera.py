@@ -34,6 +34,9 @@ def detect(camera, cascade_win, cascade_lose):
     win_frame_count = 0
     lose_frame_count = 0
 
+    win_frame_tmp = None
+    lose_frame_tmp = None
+
     wait_time = datetime.now()
 
     while True:
@@ -50,30 +53,42 @@ def detect(camera, cascade_win, cascade_lose):
         if len(win_rects) > 0:
             win_frame_count += 1
 
+            if win_frame_tmp is None:
+                win_frame_tmp = capture(camera, stream)
+
             for rect in win_rects:
                 cv2.rectangle(frame, tuple(rect[0:2]), tuple(rect[0:2]+rect[2:4]), (255, 255, 255), thickness=2)
 
-            if win_frame_count > 3 and wait_time < datetime.now():
+            if win_frame_count > 10 and wait_time < datetime.now():
                 win_frame_count = 0
-                wait_time = datetime.now() + timedelta(seconds=10)
                 now = datetime.now()
-                path = capture(camera, dist, now.strftime('%Y%m%d%H%M%S'), 'win')
+                wait_time = now + timedelta(seconds=10)
+
+                path = save(win_frame_tmp, dist, now.strftime('%Y%m%d%H%M%S'), 'win')
                 send(path, now.strftime('%Y-%m-%d %H:%M:%S'), 'win')
         else:
             win_frame_count = 0
+            win_frame_tmp = None
 
         if len(lose_rects) > 0:
             lose_frame_count += 1
 
+            if lose_frame_tmp is None:
+                lose_frame_tmp = capture(camera, stream)
+
             for rect in lose_rects:
                 cv2.rectangle(frame, tuple(rect[0:2]), tuple(rect[0:2]+rect[2:4]), (255, 0, 0), thickness=2)
 
-            if lose_frame_count > 3 and wait_time < datetime.now():
+            if lose_frame_count > 10 and wait_time < datetime.now():
                 lose_frame_count = 0
-                wait_time = datetime.now() + timedelta(seconds=10)
                 now = datetime.now()
-                path = capture(camera, dist, now.strftime('%Y%m%d%H%M%S'), 'lose')
+                wait_time = now + timedelta(seconds=10)
+
+                path = save(lose_frame_tmp, dist, now.strftime('%Y%m%d%H%M%S'), 'lose')
                 send(path, now.strftime('%Y-%m-%d %H:%M:%S'), 'lose')
+        else:
+            lose_frame_count = 0
+            lose_frame_tmp = None
 
         cv2.imshow(window_name, frame)
 
@@ -81,11 +96,22 @@ def detect(camera, cascade_win, cascade_lose):
         if key == 27:
             break
 
-def capture(camera, dist, now, result):
-    path = '{0}/ika_result{1}_{2}.jpg'.format(dist, now, result)
+def capture(camera, stream):
     camera.resolution = (640, 480)
-    camera.capture(path)
+    camera.capture(stream, format='jpeg')
+    frame = np.fromstring(stream.getvalue(), dtype=np.uint8)
+    stream.seek(0)
+    frame = cv2.imdecode(frame, 1)
     camera.resolution = (160, 120)
+
+    return frame
+
+def save(frame, dist, now, result):
+    path = '{0}/ika_result{1}_{2}.jpg'.format(dist, now, result)
+    f = open(path, "w+b")
+    f.write(frame)
+    f.close()
+
     return path
 
 def send(path, now, result):
