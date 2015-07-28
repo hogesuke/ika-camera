@@ -33,6 +33,8 @@ def detect(camera, cascade_win, cascade_lose):
 
     win_frame_count = 0
     lose_frame_count = 0
+    win_coursed_count = 0
+    lose_coursed_count = 0
 
     win_frame_tmp = None
     lose_frame_tmp = None
@@ -50,8 +52,46 @@ def detect(camera, cascade_win, cascade_lose):
         win_rects = cascade_win.detectMultiScale(image_gray, scaleFactor=1.1, minNeighbors=1, minSize=(1, 1))
         lose_rects = cascade_lose.detectMultiScale(image_gray, scaleFactor=1.1, minNeighbors=1, minSize=(1, 1))
 
+        if win_coursed_count is 10:
+            if win_frame_count >= 5 and wait_time < datetime.now():
+                now = datetime.now()
+                wait_time = now + timedelta(seconds=10)
+
+                path = save(win_frame_tmp, dist, now.strftime('%Y%m%d%H%M%S'), 'win')
+                send(path, now.strftime('%Y-%m-%d %H:%M:%S'), 'win')
+
+            # 検出経過カウントが上限まで達した場合はカウントをゼロに戻す
+            win_coursed_count = 0
+            win_frame_count = 0
+            win_frame_tmp = None
+
+        elif win_coursed_count is not 0:
+            # 検出経過カウントが開始されている場合はインクリメントする
+            win_coursed_count += 1
+
+        if lose_coursed_count is 10:
+            if lose_frame_count >= 5 and wait_time < datetime.now():
+                now = datetime.now()
+                wait_time = now + timedelta(seconds=10)
+
+                path = save(lose_frame_tmp, dist, now.strftime('%Y%m%d%H%M%S'), 'win')
+                send(path, now.strftime('%Y-%m-%d %H:%M:%S'), 'win')
+
+            # 検出経過カウントが上限まで達した場合はカウントをゼロに戻す
+            lose_coursed_count = 0
+            lose_frame_count = 0
+            lose_frame_tmp = None
+
+        elif lose_coursed_count is not 0:
+            # 検出経過カウントが開始されている場合はインクリメントする
+            lose_coursed_count += 1
+
         if len(win_rects) > 0:
             win_frame_count += 1
+
+            # 検出経過カウントがまだ開始されていない場合はカウントを開始する
+            if win_coursed_count is 0:
+                win_coursed_count = 1
 
             if win_frame_tmp is None:
                 win_frame_tmp = capture(camera, stream)
@@ -59,36 +99,18 @@ def detect(camera, cascade_win, cascade_lose):
             for rect in win_rects:
                 cv2.rectangle(frame, tuple(rect[0:2]), tuple(rect[0:2]+rect[2:4]), (255, 255, 255), thickness=2)
 
-            if win_frame_count > 5 and wait_time < datetime.now():
-                win_frame_count = 0
-                now = datetime.now()
-                wait_time = now + timedelta(seconds=10)
-
-                path = save(win_frame_tmp, dist, now.strftime('%Y%m%d%H%M%S'), 'win')
-                send(path, now.strftime('%Y-%m-%d %H:%M:%S'), 'win')
-        else:
-            win_frame_count = 0
-            win_frame_tmp = None
-
         if len(lose_rects) > 0:
             lose_frame_count += 1
+
+            # 検出経過カウントがまだ開始されていない場合はカウントを開始する
+            if lose_coursed_count is 0:
+                lose_coursed_count = 1
 
             if lose_frame_tmp is None:
                 lose_frame_tmp = capture(camera, stream)
 
             for rect in lose_rects:
                 cv2.rectangle(frame, tuple(rect[0:2]), tuple(rect[0:2]+rect[2:4]), (255, 0, 0), thickness=2)
-
-            if lose_frame_count > 5 and wait_time < datetime.now():
-                lose_frame_count = 0
-                now = datetime.now()
-                wait_time = now + timedelta(seconds=10)
-
-                path = save(lose_frame_tmp, dist, now.strftime('%Y%m%d%H%M%S'), 'lose')
-                send(path, now.strftime('%Y-%m-%d %H:%M:%S'), 'lose')
-        else:
-            lose_frame_count = 0
-            lose_frame_tmp = None
 
         cv2.imshow(window_name, frame)
 
