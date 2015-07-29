@@ -52,7 +52,7 @@ def detect(camera, cascade_win, cascade_lose):
         win_rects = cascade_win.detectMultiScale(image_gray, scaleFactor=1.1, minNeighbors=1, minSize=(1, 1))
         lose_rects = cascade_lose.detectMultiScale(image_gray, scaleFactor=1.1, minNeighbors=1, minSize=(1, 1))
 
-        if win_coursed_count is 10:
+        if win_coursed_count is 20:
             if win_frame_count >= 5 and wait_time < datetime.now():
                 now = datetime.now()
                 wait_time = now + timedelta(seconds=10)
@@ -69,7 +69,7 @@ def detect(camera, cascade_win, cascade_lose):
             # 検出経過カウントが開始されている場合はインクリメントする
             win_coursed_count += 1
 
-        if lose_coursed_count is 10:
+        if lose_coursed_count is 20:
             if lose_frame_count >= 5 and wait_time < datetime.now():
                 now = datetime.now()
                 wait_time = now + timedelta(seconds=10)
