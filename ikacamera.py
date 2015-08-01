@@ -137,7 +137,7 @@ def save(frame, dist, now, result):
 def send(path, now, result):
     opener = urllib2.build_opener(MultipartPostHandler.MultipartPostHandler)
     params = {'result': result, 'datetime': now, 'secret': 'fe45a06194f2fa0ab43fa5412bd686764ffe2748d614ccf584431716e8111116fe0cb53220d652e6ec311f846f8a52de29e7fd65a97a88ca4b4b2be188755f73', 'image': open(path, 'rb')}
-    opener.open('http://ikashot.net/upload', params)
+    opener.open('https://ikashot.net/upload', params)
 
 def main():
 
