@@ -80,7 +80,7 @@ def detect(camera, cascade_win, cascade_lose):
                 wait_time = now + timedelta(seconds=10)
 
                 path = save(lose_frame_tmp, dist, now.strftime('%Y%m%d%H%M%S'), 'lose')
-                send(path, now.strftime('%Y-%m-%d %H:%M:%S'), 'lose')
+                send(path, now.strftime('%Y-%m-%d %H:%M:%S'), 'lose', config['upload_uri'], config['secret'])
 
             # 検出経過カウントが上限まで達した場合はカウントをゼロに戻す
             lose_coursed_count = 0
