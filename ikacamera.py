@@ -1,5 +1,6 @@
 # coding: utf-8
 
+import yaml
 import time
 import picamera
 import cv2
@@ -14,7 +15,7 @@ from datetime import timedelta
 def setup():
     camera = picamera.PiCamera()
     camera.resolution = (160, 120)
-    camera.framerate = 60
+    camera.framerate = 30
 
     camera.start_preview()
     time.sleep(2)
@@ -28,6 +29,10 @@ def detect(camera, cascade_win, cascade_lose):
     dist = 'result/pictures_' + datetime.now().strftime('%Y%m%d')
     if os.path.exists(dist) is False:
         os.mkdir(dist)
+
+    f = open('./config/config.yaml', 'r')
+    config = yaml.load(f)
+    f.close()
 
     stream = io.BytesIO()
 
@@ -58,7 +63,7 @@ def detect(camera, cascade_win, cascade_lose):
                 wait_time = now + timedelta(seconds=10)
 
                 path = save(win_frame_tmp, dist, now.strftime('%Y%m%d%H%M%S'), 'win')
-                send(path, now.strftime('%Y-%m-%d %H:%M:%S'), 'win')
+                send(path, now.strftime('%Y-%m-%d %H:%M:%S'), 'win', config['upload_uri'], config['secret'])
 
             # 検出経過カウントが上限まで達した場合はカウントをゼロに戻す
             win_coursed_count = 0
@@ -134,10 +139,10 @@ def save(frame, dist, now, result):
 
     return path
 
-def send(path, now, result):
+def send(path, now, result, uri, secret):
     opener = urllib2.build_opener(MultipartPostHandler.MultipartPostHandler)
-    params = {'result': result, 'datetime': now, 'secret': 'fe45a06194f2fa0ab43fa5412bd686764ffe2748d614ccf584431716e8111116fe0cb53220d652e6ec311f846f8a52de29e7fd65a97a88ca4b4b2be188755f73', 'image': open(path, 'rb')}
-    opener.open('https://ikashot.net/upload', params)
+    params = {'result': result, 'datetime': now, 'secret': secret, 'image': open(path, 'rb')}
+    opener.open(uri, params)
 
 def main():
 
